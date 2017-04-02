@@ -1,0 +1,209 @@
+This program is used to compute solutions to a simple set of partial
+differential equations in two dimensionts.  It sets up problems for a
+specific case of Poisson's equation, with Laplace's equation as a
+special case.  The specific algorithm used is simultaneous
+over-relaxation.
+
+Specifically, this allows one to compute and visualize the values of
+voltages in a two-dimensional system which contains charges and/or
+conductors at fixed voltages.  Because the model is two-dimensional,
+this can be considered equivalent to a three-dimensional model in
+which all features of the screen are extended indefinitely into and
+out of the plane of the screen.
+
+In such systems, the voltage near a point source falls off as the
+logarithm of the distance from the point source.  Lines of constant
+voltage form closed circuits.
+
+The boundary conditions used are either fixed-voltage or periodic
+boundary conditions.  In the fixed-voltage case, the entire system is
+surrounded by a barrier whose voltage is zero.  More complex boundary
+conditions can be obtained by placing lines with different voltage
+values just inside the outside border.
+
+In the periodic boundary condition case, the system on the screen is
+assumed to be tiled across an infinite plane.  With periodic boundary
+conditions, there must always be at least one point which is
+constrained to a constant voltage, as the differential equation has no
+unique solution otherwise, and the algorithm does not converge.
+
+Warning:  If all objects in the system have zero voltage, the pixmap
+drawing code will fail when it tries to normalize the intervals.
+
+
+====
+
+
+To use the program:
+
+Start SBCL, and load the package with the command:
+
+(asdf:oos 'asdf:load-op 'sor)
+
+Start the program running with:
+
+(sor:app-main)
+
+Once the screen stabilizes, press ENTER to start the command loop.
+
+Using the buttons in the right panel, populate the scene.  The buttons
+have the following meanings:
+
+
+--- DRAWING MENU ---
+
+Bounds -> Periodic	Use periodic boundary conditions
+Bounds -> Clamped	Set the border of the scene to voltage = 0
+
+Placements -> Voltage	Objects drawn on the screen have constant voltage
+Placements -> Charge	Objects drawn on the screen have fixed charge densities
+
+Voltage			Fill in with the voltage for subsequent draws
+
+Charge			Fill in with the charge per pixel for subsequent draws
+
+Thickness		Fill in with the thickness in pixels for drawn objects
+
+Drawing Object -> Line	
+			Depress the mouse button on one end of the
+			line, move the pointer to the other end of the
+			line and release the button.  A line will be
+			drawn between the two points.
+
+
+Drawing Object -> Point 
+			Click to place a single point at the position
+			of the pointer.
+
+Drawing Object -> Circle
+			Depress the mouse button at one point, move
+			the pointer to another location and release
+			the button.  The two points thus specified
+			define the diameter of a circle which is then
+			drawn.
+
+Drawing Object -> Ellipse
+			Depress the mouse button at one point, move
+			the pointer to another location and release
+			the button.  The two points thus specified
+			define opposite corners of a rectangle inside
+			of which an ellipse is drawn such that it
+			touches all four sides of the rectangle at
+			their mid-points.
+
+Drawing Object -> Rectangle
+			Depress the mouse button at one point, move
+			the pointer to another location and release
+			the button.  The two points thus specified
+			define opposite corners of a rectangle which
+			is then drawn.
+
+Filling -> Filled	Drawn objects are filled in with the same
+			qualities as the perimeter.  For voltages
+			objects, the effect of this is to reduce the
+			amount of work the algorithm must perform, as
+			it will not compute the voltages within the
+			objects.  For charge objects, this results in
+			more charge being deposited in the model, and
+			so increases the voltage in the vicinity.
+
+Filling -> Unfilled	Drawn objects are not filled in, only their
+			perimeters are set to a given voltage/charge.
+
+Go to solver		Loads the solver matrices from the drawn
+			objects and prepares to solve the voltages.
+
+
+
+--- SOLVING MENU ---
+
+Confidence bar		This bar is red when not enough steps have
+			been calculated to allow all the points in the
+			system to have "seen" each other (before one
+			complete step has been run).  It turns yellow
+			when one complete step has been run, and green
+			when two complete steps have been run.
+
+Run one step		Activates the solver code to loop over the
+			main solver code a number of times equal to
+			the larger of the width and height of the
+			problem matrix.  When running in threaded
+			mode, pressing this button multiple times will
+			store up additional steps.
+
+Stop solver		Immediately stop running the calculator.
+
+Load solution to pixmap	
+			Takes the current state of the solution and
+			loads it to the display pixmap.  Clicking the
+			"Refresh" button on the left of the menu bar
+			will display that state.  
+
+Progress in timestep
+			Shows how many iterations have been done,
+			normalized to the larger of width and height
+			of the problem matrix.
+
+Maximum epsilon		A parameter of the simultaneous
+			over-relaxation algorithm.  Measures the
+			largest correction made to any pixel in the
+			most recent time step.
+
+Error per cell		A parameter of the simultaneous
+			over-relaxation algorithm.  Measures the
+			average correction made to pixels in the most
+			recent time step.
+
+
+==========
+
+Technical details of operation:
+
+
+This program has been designed to run with mcclim under SBCL.
+
+The program can be run multi-threaded, but there are known bugs in
+threading under SBCL prior to version 1.0.  To disable threading,
+change the parameter *use-threading* to nil
+
+The problem set is 1200x900, but that can be changed within the
+definition of the app-main function.
+
+I would recommend making a mcclim core to speed up loading.  Under
+SBCL, this is done with the following sequence:
+
+(asdf:oos 'asdf:load-op 'mcclim)
+(sb-ext:save-lisp-and-die "climlisp" :executable t)
+
+This will produce an executable file "climlisp" which can be executed,
+and which holds the mcclim system already compiled in.
+
+
+==========
+
+Things that could be improved:
+
+
+mcclim doesn't do output recording on pixmaps.  I do a lot of pixmap
+output, so I've had to hand-wire some things and turn off output
+recording.  This has led to a couple of issues:
+
+I'd like to do away with the requirement to press ENTER to get the
+system looking normal.  The green border around the drawing space
+should be present immediately, but I haven't been able to convince it
+to do that.
+
+I'd like to be able to receive the "redraw needed" message somehow,
+and use it to call my redrawing function.  That way, the user doesn't
+have to hit "Refresh" every time something occludes part of the
+display.
+
+
+
+==========
+
+Contact me:
+
+Christopher Neufeld
+Email comments to 
+(delete-if #'digit-char-p "s1o2r3987-so91lver455@cneufeld.ca")

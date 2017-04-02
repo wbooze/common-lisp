@@ -1,0 +1,1 @@
+../source/org-davep-cldict-1.1/org-davep-cldict.asd

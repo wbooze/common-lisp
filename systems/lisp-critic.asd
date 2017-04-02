@@ -1,0 +1,1 @@
+../source/lisp-critic/lisp-critic.asd

@@ -1,0 +1,1 @@
+../source/gpgme/gpgme.asd
