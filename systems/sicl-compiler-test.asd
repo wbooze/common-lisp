@@ -1,0 +1,1 @@
+../source/SICL/Code/Compiler/Test/sicl-compiler-test.asd

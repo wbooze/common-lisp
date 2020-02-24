@@ -1,0 +1,1 @@
+../source/SICL/Code/String/General/Test/sicl-string-test.asd

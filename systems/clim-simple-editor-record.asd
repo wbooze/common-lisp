@@ -1,0 +1,1 @@
+../source/Second-Climacs/GUI/McCLIM-ESA/Simple-record/clim-simple-editor-record.asd

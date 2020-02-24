@@ -1,0 +1,1 @@
+../source/Second-Climacs/Syntax/Common-Lisp/Test/climacs-syntax-common-lisp-test.asd
